@@ -1,8 +1,10 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,10 @@ import com.example.JokeTellerClass;
 import com.example.android.jokedisplay.JokeDisplay;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+import com.udacity.gradle.builditbigger.bus.BusProvider;
+import com.udacity.gradle.builditbigger.bus.OnJokeReceivedFromServerEvent;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +30,8 @@ import butterknife.ButterKnife;
 public class MainActivityFragment extends Fragment {
 
     private static final String KEY_JOKE = "key-joke";
+    private Bus mBus = BusProvider.getInstance();
+
 
     @BindView(R.id.btn_joke) Button mJokeButton;
 
@@ -36,18 +44,15 @@ public class MainActivityFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.bind(this, root);
 
-        final JokeTellerClass jokeTellerClass = new JokeTellerClass();
-
-        final Intent intent = new Intent(getContext(), JokeDisplay.class);
-
         mJokeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 // Pass the joke from jokeTellerClass to JokeDisplay
-                String joke = jokeTellerClass.tellMeAJoke();
-                intent.putExtra(KEY_JOKE, joke);
-                startActivity(intent);
+
+                //intent.putExtra(KEY_JOKE, joke);
+                //startActivity(intent);
+                new EndpointsAsyncTask().execute(getContext());
             }
         });
 
@@ -60,5 +65,28 @@ public class MainActivityFragment extends Fragment {
                 .build();
         mAdView.loadAd(adRequest);
         return root;
+    }
+
+    @Subscribe
+    public void onNewJokeReceived(OnJokeReceivedFromServerEvent event) {
+        startJokeDisplayActivity(event.mJoke);
+    }
+
+    public void startJokeDisplayActivity(String joke) {
+        Intent intent = new Intent(getContext(), JokeDisplay.class);
+        intent.putExtra(KEY_JOKE, joke);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mBus.register(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mBus.unregister(this);
     }
 }
