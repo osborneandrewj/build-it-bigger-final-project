@@ -1,5 +1,6 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.JokeTellerClass;
+import com.example.android.jokedisplay.JokeDisplay;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -20,6 +22,8 @@ import butterknife.ButterKnife;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+
+    private static final String KEY_JOKE = "key-joke";
 
     @BindView(R.id.btn_joke) Button mJokeButton;
 
@@ -34,11 +38,16 @@ public class MainActivityFragment extends Fragment {
 
         final JokeTellerClass jokeTellerClass = new JokeTellerClass();
 
+        final Intent intent = new Intent(getContext(), JokeDisplay.class);
+
         mJokeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // Pass the joke from jokeTellerClass to JokeDisplay
                 String joke = jokeTellerClass.tellMeAJoke();
-                Toast.makeText(getContext(), joke, Toast.LENGTH_SHORT).show();
+                intent.putExtra(KEY_JOKE, joke);
+                startActivity(intent);
             }
         });
 
