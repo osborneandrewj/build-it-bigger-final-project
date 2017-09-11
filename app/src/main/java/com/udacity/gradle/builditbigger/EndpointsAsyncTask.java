@@ -2,6 +2,9 @@ package com.udacity.gradle.builditbigger;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.util.Pair;
 import android.widget.Toast;
 
@@ -16,9 +19,11 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+import com.google.api.client.repackaged.com.google.common.annotations.VisibleForTesting;
 import com.squareup.otto.Bus;
 import com.udacity.gradle.builditbigger.bus.BusProvider;
 import com.udacity.gradle.builditbigger.bus.OnJokeReceivedFromServerEvent;
+import com.udacity.gradle.builditbigger.idlingResources.SimpleIdlingResource;
 
 /**
  * Created by Zark on 9/8/2017.
@@ -33,6 +38,8 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
 
     @Override
     protected String doInBackground(Context... params) {
+
+
 
         mBus = BusProvider.getInstance();
 
@@ -64,4 +71,6 @@ public class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
         mBus.post(new OnJokeReceivedFromServerEvent(s));
 
     }
+
+
 }
